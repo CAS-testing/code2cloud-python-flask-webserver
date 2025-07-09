@@ -141,7 +141,6 @@ Use the external IP provided by the LoadBalancer service to access the applicati
 ![Web Application](docs/webapp.png)
 
 
-
 ### Implement changes on the application
 
 Go to the directory and open repository:  
