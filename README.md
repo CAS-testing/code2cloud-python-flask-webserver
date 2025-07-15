@@ -9,7 +9,6 @@ This repository contains a Python Flask application designed to demonstrate the 
 
 ## Illustrations
 
-
 Code2Cloud traceability is a GA feature and available now. 
 #### Code2Cloud Traceability
 ![Code2Cloud Traceability](docs/code2cloud-traceability.png)
