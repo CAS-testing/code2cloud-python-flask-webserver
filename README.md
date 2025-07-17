@@ -163,6 +163,7 @@ Apply the Kubernetes manifests to create the namespace, deployment, and service:
 kubectl apply -f manifests/deployment.yaml
 ```
 
+
 ### Troubleshooting by verifying the HASH 
 
 Go to https://github.com/<your-github-organization>/code2cloud-python-flask-webserver/actions/  
