@@ -60,11 +60,11 @@ jobs:
           docker build -t ${{ vars.IMAGE_REGISTRY }}:$LATEST_SHA .
           docker tag ${{ vars.IMAGE_REGISTRY }}:$LATEST_SHA ${{ vars.IMAGE_REGISTRY }}:latest
 
-      - name: 🏗️ Cortex CLI scan image
-        run: |
-          crtx_resp=$(curl -s curl -s "https://api-cwp-ci-july.xdr-qa2-uat.us.paloaltonetworks.com/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64" -H "x-xdr-auth-id: 828" -H "Authorization: 5pBHsCQ1vSkBXqissF3W04s8aGLb33RywbCySeo77g8FD1iUTQBWXiNxvnHPu5oF1SlgLOVU4pLkbonriY4QKYsd3NBMvB80NaKP6BqX3Gx6IFXmTE9z8MvrFbxw7Szy") && crtx_url=$(echo $crtx_resp | jq -r ".signed_url") && crtx_file=$(echo $crtx_resp | jq -r ".file_name") && curl -o $crtx_file $crtx_url
-          chmod +x ./cortexcli
-          sudo ./cortexcli --api-base-url https://api-cwp-ci-july.xdr-qa2-uat.us.paloaltonetworks.com --api-key ${{ secrets.CORTEX_API_KEY }} --api-key-id 828 --log-level debug image scan ${{ vars.IMAGE_REGISTRY }}:$LATEST_SHA
+#      - name: 🏗️ Cortex CLI scan image
+#        run: |
+#          crtx_resp=$(curl -s curl -s "https://api-cwp-ci-july.xdr-qa2-uat.us.paloaltonetworks.com/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64" -H "x-xdr-auth-id: 828" -H "Authorization: 5pBHsCQ1vSkBXqissF3W04s8aGLb33RywbCySeo77g8FD1iUTQBWXiNxvnHPu5oF1SlgLOVU4pLkbonriY4QKYsd3NBMvB80NaKP6BqX3Gx6IFXmTE9z8MvrFbxw7Szy") && crtx_url=$(echo $crtx_resp | jq -r ".signed_url") && crtx_file=$(echo $crtx_resp | jq -r ".file_name") && curl -o $crtx_file $crtx_url
+#          chmod +x ./cortexcli
+#          sudo ./cortexcli --api-base-url https://api-cwp-ci-july.xdr-qa2-uat.us.paloaltonetworks.com --api-key ${{ secrets.CORTEX_API_KEY }} --api-key-id 828 --log-level debug image scan ${{ vars.IMAGE_REGISTRY }}:$LATEST_SHA
 
       - name: 🚀 Push Docker Image to AWS ECR
         run: |
