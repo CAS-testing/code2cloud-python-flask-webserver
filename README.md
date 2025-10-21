@@ -16,7 +16,8 @@ The steps to access it are as follows:
 1. Go to the Investigate tab.
 2. Search for a vulnerability with CVE ID: CVE-2023-31047.
 3. Click on the runtime container image.
-4. Click "View C2C Impact Graph".
+4. 
+5. Click "View C2C Impact Graph".
 
 #### Code2Cloud Investigate
 ![Code2Cloud Investigate](docs/code2cloud-investigate.png)
