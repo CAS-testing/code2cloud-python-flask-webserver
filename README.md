@@ -26,7 +26,6 @@ The steps to access it are as follows:
 ![Code2Cloud Impact Graph](docs/code2cloud-impact-graph.png)
 
 ## Goals
-
 - Demonstrate code-to-cloud traceability using Prisma Cloud.
 - Utilize GitHub Actions for automated CI/CD.
 - Deploy the application using Kubernetes manifests.  
