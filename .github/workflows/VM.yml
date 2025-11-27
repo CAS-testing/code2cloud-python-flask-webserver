@@ -1,47 +1,70 @@
 name: Build and Deploy VM Image
 
 env:
-  AWS_REGION: us-east-1  # Replace with your desired AWS region
-  
+  AWS_REGION: us-east-1      # Replace with your desired AWS region
+  AMI_NAME: my-vm-image-${{ github.sha }} # a unique name for the final AMI
+
 on:
- workflow_dispatch:
- 
-   
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.8'
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
- 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
-  
-    - name: Build VM image
-      run: |
-        packer fmt -check .
-        packer init .        
-        packer validate .
-        packer build -debug .
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+    
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Build VM image and Capture AMI ID
+        id: packer_build
+        run: |
+          packer fmt -check .
+          packer init .       
+          packer validate .
+          
+          echo "Starting Packer build. This step waits until the AMI is fully ready."
+          
+          # Run packer build, capture the output, and extract the AMI ID
+          # The -machine-readable flag is key for reliable output parsing
+          PACKER_OUTPUT=$(packer build -machine-readable .)
+          
+          # The AMI ID is typically the 9th comma-separated field in the artifact line
+          AMI_ID=$(echo "$PACKER_OUTPUT" | grep ',artifact,0,id,' | cut -d, -f9)
+          
+          if [ -z "$AMI_ID" ]; then
+            echo "::error::Packer failed to produce an AMI ID. Check logs."
+            exit 1
+          fi
+          
+          # Set the AMI ID as an output variable for later steps
+          echo "AMI_ID=$AMI_ID" >> $GITHUB_OUTPUT
+          echo "✅ AMI Creation Complete. AMI ID: $AMI_ID"
 
-    - name: Deploy VM image
-      run: |
-        # Deploy the VM image to your cloud provider
-        # Example for AWS using AWS CLI
-        aws ec2 describe-images --filters "Name=name,Values=my-vm-image" 
+      - name: Deploy/Use the AMI
+        run: |
+          AMI_ID=${{ steps.packer_build.outputs.AMI_ID }}
+          
+          echo "Starting deployment process for AMI: $AMI_ID"
+          
+          # Example: Use the AMI to launch an EC2 instance or update an Auto Scaling Group
+          # aws autoscaling update-auto-scaling-group --auto-scaling-group-name "MyAppASG" --launch-template-specification "LaunchTemplateId=lt-xxxx,Version='$AMI_ID'"
+          
+          # Example: Simply describe the AMI to confirm success
+          aws ec2 describe-images --image-ids $AMI_ID
