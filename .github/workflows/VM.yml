@@ -43,8 +43,21 @@ jobs:
           
           # Run packer build, capture the output, and extract the AMI ID
           # The -machine-readable flag is key for reliable output parsing
-          PACKER_OUTPUT=$(packer build -machine-readable .)
           
+          # --- ERROR DEBUGGING: Capture PACKER output and status ---
+          PACKER_OUTPUT=$(packer build -machine-readable . 2>&1)
+          PACKER_EXIT_CODE=$?
+          
+          echo "--- Packer Output ---"
+          echo "$PACKER_OUTPUT"
+          echo "--- End Packer Output ---"
+
+          if [ $PACKER_EXIT_CODE -ne 0 ]; then
+            echo "::error::Packer build failed with exit code $PACKER_EXIT_CODE. See above output for details."
+            exit $PACKER_EXIT_CODE
+          fi
+          # --- END ERROR DEBUGGING ---
+
           # The AMI ID is typically the 9th comma-separated field in the artifact line
           AMI_ID=$(echo "$PACKER_OUTPUT" | grep ',artifact,0,id,' | cut -d, -f9)
           
@@ -56,7 +69,6 @@ jobs:
           # Set the AMI ID as an output variable for later steps
           echo "AMI_ID=$AMI_ID" >> $GITHUB_OUTPUT
           echo "✅ AMI Creation Complete. AMI ID: $AMI_ID"
-
       # - name: Deploy/Use the AMI
         # run: |
           # AMI_ID=${{ steps.packer_build.outputs.AMI_ID }}
