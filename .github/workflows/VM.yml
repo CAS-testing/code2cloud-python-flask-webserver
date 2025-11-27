@@ -45,7 +45,7 @@ jobs:
           # The -machine-readable flag is key for reliable output parsing
           
           # --- ERROR DEBUGGING: Capture PACKER output and status ---
-          PACKER_OUTPUT=$(packer build -machine-readable . 2>&1)
+          PACKER_OUTPUT=$(packer build -debug -machine-readable . 2>&1)
           PACKER_EXIT_CODE=$?
           
           echo "--- Packer Output ---"
@@ -69,6 +69,7 @@ jobs:
           # Set the AMI ID as an output variable for later steps
           echo "AMI_ID=$AMI_ID" >> $GITHUB_OUTPUT
           echo "✅ AMI Creation Complete. AMI ID: $AMI_ID"
+
       # - name: Deploy/Use the AMI
         # run: |
           # AMI_ID=${{ steps.packer_build.outputs.AMI_ID }}
