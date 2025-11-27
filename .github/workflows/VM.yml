@@ -57,14 +57,14 @@ jobs:
           echo "AMI_ID=$AMI_ID" >> $GITHUB_OUTPUT
           echo "✅ AMI Creation Complete. AMI ID: $AMI_ID"
 
-      - name: Deploy/Use the AMI
-        run: |
-          AMI_ID=${{ steps.packer_build.outputs.AMI_ID }}
+      # - name: Deploy/Use the AMI
+        # run: |
+          # AMI_ID=${{ steps.packer_build.outputs.AMI_ID }}
           
-          echo "Starting deployment process for AMI: $AMI_ID"
+          # echo "Starting deployment process for AMI: $AMI_ID"
           
           # Example: Use the AMI to launch an EC2 instance or update an Auto Scaling Group
           # aws autoscaling update-auto-scaling-group --auto-scaling-group-name "MyAppASG" --launch-template-specification "LaunchTemplateId=lt-xxxx,Version='$AMI_ID'"
           
           # Example: Simply describe the AMI to confirm success
-          aws ec2 describe-images --image-ids $AMI_ID
+          # aws ec2 describe-images --image-ids $AMI_ID
