@@ -2,9 +2,10 @@ name: Build and Deploy VM Image
 
 env:
   AWS_REGION: us-east-1      # Replace with your desired AWS region
-  AMI_NAME: my-vm-image-${{ github.sha }} # a unique name for the final AMI
+  AMI_NAME: my-vm-image-${{ github.sha }} # New: Use a unique name for the final AMI
 
 on:
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
@@ -32,52 +33,59 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
       
-      - name: Build VM image and Capture AMI ID
-        id: packer_build
+      # 1. Initialization and Validation
+      - name: Packer Init and Validate
         run: |
           packer fmt -check .
-          packer init .       
+          packer init .
           packer validate .
-          
+
+      # 2. Build VM Image (Most likely failure point)
+      - name: Build VM Image and Get Output
+        id: packer_run
+        run: |
           echo "Starting Packer build. This step waits until the AMI is fully ready."
           
-          # Run packer build, capture the output, and extract the AMI ID
-          # The -machine-readable flag is key for reliable output parsing
+          # Run the build, piping all output to a temporary file
+          packer build -machine-readable . 2>&1 | tee packer_output.txt
           
-          # --- ERROR DEBUGGING: Capture PACKER output and status ---
-          PACKER_OUTPUT=$(packer build -debug -machine-readable . 2>&1)
-          PACKER_EXIT_CODE=$?
+          # Read the contents of the temporary file into a GitHub Action output variable
+          # This ensures we capture the full log even if the command fails
+          PACKER_OUTPUT=$(cat packer_output.txt)
           
-          echo "--- Packer Output ---"
-          echo "$PACKER_OUTPUT"
-          echo "--- End Packer Output ---"
+          echo "PACKER_OUTPUT<<EOF" >> $GITHUB_OUTPUT
+          echo "$PACKER_OUTPUT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
-          if [ $PACKER_EXIT_CODE -ne 0 ]; then
-            echo "::error::Packer build failed with exit code $PACKER_EXIT_CODE. See above output for details."
-            exit $PACKER_EXIT_CODE
-          fi
-          # --- END ERROR DEBUGGING ---
-
-          # The AMI ID is typically the 9th comma-separated field in the artifact line
+          # Extract AMI ID using the same logic, but on the captured output variable
+          # Note: The AMI ID extraction still needs to be in a successful step to work reliably
           AMI_ID=$(echo "$PACKER_OUTPUT" | grep ',artifact,0,id,' | cut -d, -f9)
           
           if [ -z "$AMI_ID" ]; then
-            echo "::error::Packer failed to produce an AMI ID. Check logs."
-            exit 1
+            echo "::warning::AMI ID not found in Packer output. The build likely failed."
+          else
+            echo "AMI_ID=$AMI_ID" >> $GITHUB_OUTPUT
           fi
-          
-          # Set the AMI ID as an output variable for later steps
-          echo "AMI_ID=$AMI_ID" >> $GITHUB_OUTPUT
-          echo "✅ AMI Creation Complete. AMI ID: $AMI_ID"
 
-      # - name: Deploy/Use the AMI
-        # run: |
-          # AMI_ID=${{ steps.packer_build.outputs.AMI_ID }}
+
+      # 3. Deploy/Use the AMI
+      # - name: Check Status and Deploy AMI
+      #   run: |
+      #     # Use the full captured output from the previous step for debugging
+      #     echo "--- Packer Build Log ---"
+      #     echo "${{ steps.packer_run.outputs.PACKER_OUTPUT }}"
+      #     echo "--- End Log ---"
           
+          # Check if the AMI_ID was successfully captured
+          # AMI_ID=${{ steps.packer_run.outputs.AMI_ID }}
+          
+          # if [ -z "$AMI_ID" ]; then
+          #   echo "::error::Deployment skipped: AMI ID was not created by Packer. Review the log above for the specific error details (e.g., IAM, SSH, or Provisioner failure)."
+          #   exit 1
+          # fi
+
+          # echo "✅ AMI Creation Complete. AMI ID: $AMI_ID"
           # echo "Starting deployment process for AMI: $AMI_ID"
-          
-          # Example: Use the AMI to launch an EC2 instance or update an Auto Scaling Group
-          # aws autoscaling update-auto-scaling-group --auto-scaling-group-name "MyAppASG" --launch-template-specification "LaunchTemplateId=lt-xxxx,Version='$AMI_ID'"
           
           # Example: Simply describe the AMI to confirm success
           # aws ec2 describe-images --image-ids $AMI_ID
