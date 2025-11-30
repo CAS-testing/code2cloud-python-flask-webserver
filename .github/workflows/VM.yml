@@ -41,7 +41,7 @@ jobs:
           # packer init .
           # packer validate .
                     
-          echo "AMI Id created."
+          echo "amazon-ebs: AMI:ami-0985b85bfc70c8ca0"
           echo "AMI_ID=ami-0985b85bfc70c8ca0"
        
       # # 2. Build VM Image (Most likely failure point)
