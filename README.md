@@ -6,7 +6,7 @@ This repository contains a Python Flask application designed to demonstrate the 
 
 ## Illustrations 
 
-Code2Cloud traceability is a GA feature and available now. 
+Code2Cloud traceability is a GA feature and available now.     
 #### Code2Cloud Traceability
 ![Code2Cloud Traceability](docs/code2cloud-traceability.png)
 
@@ -14,10 +14,10 @@ Code2Cloud traceability is a GA feature and available now.
 The impact graph is a **BETA** feature and requires a feature flag to be enabled.  
 The steps to access it are as follows:
 1. Go to the Investigate tab.
-2. Search for a vulnerability with CVE ID: CVE-2023-31047.
+2. Search for a vulnerability with CVE ID: CVE-2023-31047.   
 3. Click on the runtime container image.
 4. 
-5. Click "View C2C Impact Graph".
+5. Click "View C2C Impact Graph".   
 
 #### Code2Cloud Investigate
 ![Code2Cloud Investigate](docs/code2cloud-investigate.png)
