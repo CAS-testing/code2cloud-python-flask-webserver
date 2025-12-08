@@ -5,8 +5,8 @@
 This repository contains a Python Flask application designed to demonstrate the code-to-cloud traceability feature of Prisma Cloud. The application allows users to manage customer data, showcasing CRUD (Create, Read, Update, Delete) operations, and is containerized for deployment on cloud platforms like AKS, EKS, or GKE. The pipeline utilizes GitHub Actions for CI/CD, building and pushing the Docker image to GitHub Container Registry (GHCR).  
 
 ## Illustrations 
-
-Code2Cloud traceability is a GA feature and available now. 
+   
+Code2Cloud traceability is a GA feature and available now.       
 #### Code2Cloud Traceability
 ![Code2Cloud Traceability](docs/code2cloud-traceability.png)
 
@@ -14,10 +14,10 @@ Code2Cloud traceability is a GA feature and available now.
 The impact graph is a **BETA** feature and requires a feature flag to be enabled.  
 The steps to access it are as follows:
 1. Go to the Investigate tab.
-2. Search for a vulnerability with CVE ID: CVE-2023-31047.
+2. Search for a vulnerability with CVE ID: CVE-2023-31047.   
 3. Click on the runtime container image.
 4. 
-5. Click "View C2C Impact Graph".
+5. Click "View C2C Impact Graph".   
 
 #### Code2Cloud Investigate
 ![Code2Cloud Investigate](docs/code2cloud-investigate.png)
@@ -172,7 +172,7 @@ Go to home page of you repository and click on the Packages: https://github.com/
 ![Packages of thge repository](docs/repo-packages.png)
 
 Expand the latest version to verify the digest from the previous step:
-![Digest from GHCR](docs/digest-ghcr.png)
+![Digest from GHCR](docs/digest-ghcr.png). 
 
 Connect to your Prisma Cloud tenant and search for code2cloud from Runtime Security > Monitor > Vulnerabilities > Images > Deployed, click on the image that was deployed on your kubernetes cluster and verify the hash from previous step:
 ![Digest from Prisma Cloud](docs/digest-prisma-cloud.png)
