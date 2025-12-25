@@ -1,5 +1,6 @@
 name: Build and Deploy VM Image
 
+
 env:
   AWS_REGION: us-east-1      # Replace with your desired AWS region
   AMI_NAME: my-vm-image-${{ github.sha }}
