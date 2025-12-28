@@ -178,4 +178,5 @@ Expand the latest version to verify the digest from the previous step:
 Connect to your Prisma Cloud tenant and search for code2cloud from Runtime Security > Monitor > Vulnerabilities > Images > Deployed, click on the image that was deployed on your kubernetes cluster and verify the hash from previous step:
 ![Digest from Prisma Cloud](docs/digest-prisma-cloud.png)
 
+
 ## END
