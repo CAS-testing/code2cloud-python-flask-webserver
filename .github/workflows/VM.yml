@@ -4,12 +4,12 @@ name: Build and Deploy VM Image
 env:
   AMI_NAME: my-vm-image-${{ github.sha }}
 
+permissions:
+  id-token: write   # This is required for requesting the JWT
+
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
-permissions:
-  id-token: write   # This is required for requesting the JWT
 
 jobs:
   build:
