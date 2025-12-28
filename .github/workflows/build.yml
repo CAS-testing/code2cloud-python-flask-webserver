@@ -3,12 +3,12 @@ name: CI/CD
 on:
   push:
     branches:
-      - '**'
+      - '**' # TODO change it back to main
 env:
   AWS_REGION: us-east-1
 
 permissions:
-  id-token: write
+  id-token: write   # This is required for requesting the JWT
 
 jobs:
   install:
@@ -43,7 +43,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: arn:aws:iam::980573775279:role/github_actions
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: 🧰 Install AWS CLI & kubectl
         run: |
@@ -96,7 +96,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: arn:aws:iam::980573775279:role/github_actions
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: 🔄 Update Kubeconfig for EKS
         run: |
