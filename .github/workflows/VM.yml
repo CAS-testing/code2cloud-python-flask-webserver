@@ -47,7 +47,7 @@ jobs:
         id: packer_run
         run: |
           echo "Starting Packer build. This step waits until the AMI is fully ready."
-
+          set -o pipefail
           # Run the build, piping all output to a temporary file
           packer build -machine-readable . 2>&1 | tee packer_output.txt
 
@@ -80,7 +80,7 @@ jobs:
           # Check if the AMI_ID was successfully captured
           AMI_ID=${{ steps.packer_run.outputs.AMI_ID }}
           if [ -z "$AMI_ID" ]; then
-          echo "::error::Deployment skipped: AMI ID was not created by Packer. Review the log above for the specific error details (e.g., IAM, SSH, or Provisioner failure)."
+            echo "::error::Deployment skipped: AMI ID was not created by Packer. Review the log above for the specific error details (e.g., IAM, SSH, or Provisioner failure)."
             exit 1
           fi
           echo "✅ AMI Creation Complete. AMI ID: $AMI_ID"
