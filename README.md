@@ -54,7 +54,7 @@ Before you begin, ensure you have the following:
     1. In the upper-right corner of any page on GitHub, click your profile photo, then click Settings.
     1. In the "Access" section of the sidebar, click  Organizations.
     1. Next to the "Organizations" header, click New organization.
-
+  
 
 ## Step-by-Step Procedure  
 
