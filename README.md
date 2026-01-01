@@ -42,7 +42,7 @@ The steps to access it are as follows:
 
 ## Prerequisites
 Before you begin, ensure you have the following:  
-
+   
 - **System Admin Access to Prisma Cloud:** You need administrative access to Prisma Cloud to configure and monitor the security settings and ensure proper integration with your Kubernetes cluster.  
 
 - **Kubeadmin Access to AKS, EKS, or GKE:** Ensure you have Kubernetes admin access to your chosen cloud provider's Kubernetes service (Azure Kubernetes Service, Amazon Elastic Kubernetes Service  
