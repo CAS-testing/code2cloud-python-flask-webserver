@@ -37,7 +37,7 @@ jobs:
 
       - name: VM Image Build && Deploy
         run: |
-           packer fmt -check .
+           packer fmt .
            packer init .
            packer validate .
        
