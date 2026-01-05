@@ -15,7 +15,11 @@ source "amazon-ebs" "my_vm" {
   ami_name      = "my-vm-image-${formatdate("YYYYMMDD-hhmmss", timestamp())}"
   vpc_id        = "vpc-0e320e06aabdb1cb0"
   subnet_id     = "subnet-07167df56df6d3016"
-
+  metadata_options {
+      http_endpoint               = "enabled"
+      http_tokens                 = "required"
+      http_put_response_hop_limit = 1
+    }
   #temporary_key_pair_type = "ed25519"
 }
 
