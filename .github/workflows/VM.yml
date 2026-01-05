@@ -36,11 +36,10 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
 
 
-#      - name: Set up Packer TODO check this
-#        uses: hashicorp/setup-packer@v3
-#        with:
-#          version: "latest"
-#
+      - name: Set up Packer
+        uses: hashicorp/setup-packer@v3
+        with:
+          version: "latest"
 
       - name: VM Image Build && Deploy
         run: |
