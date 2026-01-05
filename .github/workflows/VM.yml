@@ -43,8 +43,7 @@ jobs:
 
       - name: VM Image Build && Deploy
         run: |
-          #TODO revert to packer -check fmt . ?
-           packer fmt . 
+           packer fmt -check .
            packer init .
            packer validate .
        
