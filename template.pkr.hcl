@@ -21,6 +21,8 @@ source "amazon-ebs" "my_vm" {
       http_put_response_hop_limit = 1
     }
   #temporary_key_pair_type = "ed25519"
+  associate_public_ip_address = true
+  ssh_interface              = "public_ip"
 }
 
 build {
