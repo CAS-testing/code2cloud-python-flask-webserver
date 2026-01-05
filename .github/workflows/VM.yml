@@ -2,8 +2,10 @@ name: Build and Deploy VM Image
 
 
 env:
-  AWS_REGION: us-east-1      # Replace with your desired AWS region
   AMI_NAME: my-vm-image-${{ github.sha }}
+
+permissions:
+  id-token: write   # This is required for requesting the JWT
 
 on:
   # Allows you to run this workflow manually from the Actions tab
@@ -31,64 +33,61 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: arn:aws:iam::980573775279:role/github_actions
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: VM Image Build && Deploy
         run: |
-      
-          # packer fmt -check .
-          # packer init .
-          # packer validate .
-                    
-          echo "amazon-ebs: AMI:ami-0a6427b61746c6cae"
-          echo "AMI_ID=ami-0a6427b61746c6cae"
+           packer fmt . 
+           packer init .
+           packer validate .
        
-      # # 2. Build VM Image (Most likely failure point)
-      # - name: Build VM Image and Output
-      #   id: packer_run
-      #   run: |
-          # echo "Starting Packer build. This step waits until the AMI is fully ready."
-          
+       # 2. Build VM Image (Most likely failure point)
+      - name: Build VM Image and Output
+        id: packer_run
+        run: |
+          echo "Starting Packer build. This step waits until the AMI is fully ready."
+          set -o pipefail
           # Run the build, piping all output to a temporary file
-          # packer build -machine-readable . 2>&1 | tee packer_output.txt
-          
+          packer build -machine-readable . 2>&1 | tee packer_output.txt
+
           # Read the contents of the temporary file into a GitHub Action output variable
           # This ensures we capture the full log even if the command fails
-          # PACKER_OUTPUT=$(cat packer_output.txt)
-          
-          # echo "PACKER_OUTPUT<<EOF" >> $GITHUB_OUTPUT
-          # echo "$PACKER_OUTPUT" >> $GITHUB_OUTPUT
-          # echo "EOF" >> $GITHUB_OUTPUT
+          PACKER_OUTPUT=$(cat packer_output.txt)
+
+          echo "PACKER_OUTPUT<<EOF" >> $GITHUB_OUTPUT
+          echo "$PACKER_OUTPUT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
           # Extract AMI ID using the same logic, but on the captured output variable
           # Note: The AMI ID extraction still needs to be in a successful step to work reliably
-          # AMI_ID=$(echo "$PACKER_OUTPUT" | grep ',artifact,0,id,' | cut -d, -f9)
-          
-          # if [ -z "$AMI_ID" ]; then
-          #   echo "::warning::AMI ID not found in Packer output. The build likely failed."
-          # else
-          #   echo "AMI_ID=$AMI_ID" >> $GITHUB_OUTPUT
-          # fi
+          AMI_ID=$(
+          echo "$PACKER_OUTPUT" |
+          awk -F, '$3=="artifact" && $5=="id" {print $6}' |
+          tail -n 1 |
+          sed 's/^[^:]*://'
+          )
+
+          if [ -z "$AMI_ID" ]; then
+            echo "::warning::AMI ID not found in Packer output. The build likely failed."
+          else
+            echo "AMI_ID=$AMI_ID" >> $GITHUB_OUTPUT
+          fi
 
 
-      # 3. Deploy/Use the AMI
-      # - name: Check Status and Deploy AMI
-      #   run: |
-      #     # Use the full captured output from the previous step for debugging
-      #     echo "--- Packer Build Log ---"
-      #     echo "${{ steps.packer_run.outputs.PACKER_OUTPUT }}"
-      #     echo "--- End Log ---"
-          
+        # 3. Deploy/Use the AMI
+      - name: Check Status and Deploy AMI
+        run: |
+          # Use the full captured output from the previous step for debugging
+          echo "--- Packer Build Log ---"
+          echo "${{ steps.packer_run.outputs.PACKER_OUTPUT }}"
+          echo "--- End Log ---"
           # Check if the AMI_ID was successfully captured
-          # AMI_ID=${{ steps.packer_run.outputs.AMI_ID }}
-          
-          # if [ -z "$AMI_ID" ]; then
-          #   echo "::error::Deployment skipped: AMI ID was not created by Packer. Review the log above for the specific error details (e.g., IAM, SSH, or Provisioner failure)."
-          #   exit 1
-          # fi
-
-          # echo "✅ AMI Creation Complete. AMI ID: $AMI_ID"
-          # echo "Starting deployment process for AMI: $AMI_ID"
-          
+          AMI_ID=${{ steps.packer_run.outputs.AMI_ID }}
+          if [ -z "$AMI_ID" ]; then
+            echo "::error::Deployment skipped: AMI ID was not created by Packer. Review the log above for the specific error details (e.g., IAM, SSH, or Provisioner failure)."
+            exit 1
+          fi
+          echo "✅ AMI Creation Complete. AMI ID: $AMI_ID"
+          echo "Starting deployment process for AMI: $AMI_ID"
           # Example: Simply describe the AMI to confirm success
-          # aws ec2 describe-images --image-ids $AMI_ID
+          aws ec2 describe-images --image-ids $AMI_ID
