@@ -35,15 +35,9 @@ jobs:
           role-to-assume: arn:aws:iam::980573775279:role/github_actions
           aws-region: ${{ vars.AWS_REGION }}
 
-
-      - name: Set up Packer
-        uses: hashicorp/setup-packer@v3
-        with:
-          version: "latest"
-
       - name: VM Image Build && Deploy
         run: |
-           packer fmt -check .
+           packer fmt . 
            packer init .
            packer validate .
        
