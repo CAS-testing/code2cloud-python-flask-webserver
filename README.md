@@ -30,7 +30,6 @@ The steps to access it are as follows:
 - Utilize GitHub Actions for automated CI/CD.
 - Deploy the application using Kubernetes manifests.  
 
-
 ## Features
 
 - Add, edit, delete, and list customers.
