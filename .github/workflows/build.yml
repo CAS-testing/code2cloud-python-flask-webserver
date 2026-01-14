@@ -79,6 +79,11 @@ jobs:
         id: export-sha
         run: echo "sha=$LATEST_SHA" >> $GITHUB_OUTPUT
 
+      - name: Create mock AMI Image
+        run: |
+          echo "amazon-ebs: AMI:ami-0a6427b61746c6cae"
+          echo "AMI_ID=ami-0a6427b61746c6cae"
+
   deploy-to-eks:
     runs-on: ubuntu-latest
     needs: build-and-push-image
