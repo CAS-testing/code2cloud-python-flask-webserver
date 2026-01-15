@@ -5,19 +5,19 @@
 This repository contains a Python Flask application designed to demonstrate the code-to-cloud traceability feature of Prisma Cloud. The application allows users to manage customer data, showcasing CRUD (Create, Read, Update, Delete) operations, and is containerized for deployment on cloud platforms like AKS, EKS, or GKE. The pipeline utilizes GitHub Actions for CI/CD, building and pushing the Docker image to GitHub Container Registry (GHCR).  
 
 ## Illustrations 
-
-Code2Cloud traceability is a GA feature and available now. 
+   
+Code2Cloud traceability is a GA feature and available now.        
 #### Code2Cloud Traceability
-![Code2Cloud Traceability](docs/code2cloud-traceability.png)
+![Code2Cloud Traceability](docs/code2cloud-traceability.png)  
 
 #### Code2Cloud Impact Graph (BETA) 
 The impact graph is a **BETA** feature and requires a feature flag to be enabled.  
 The steps to access it are as follows:
 1. Go to the Investigate tab.
-2. Search for a vulnerability with CVE ID: CVE-2023-31047.
-3. Click on the runtime container image.
+2. Search for a vulnerability with CVE ID: CVE-2023-31047.   
+3. Click on the runtime container image.    
 4. 
-5. Click "View C2C Impact Graph".
+5. Click "View C2C Impact Graph".   
 
 #### Code2Cloud Investigate
 ![Code2Cloud Investigate](docs/code2cloud-investigate.png)
@@ -40,7 +40,7 @@ The steps to access it are as follows:
 
 ## Prerequisites
 Before you begin, ensure you have the following:  
-
+   
 - **System Admin Access to Prisma Cloud:** You need administrative access to Prisma Cloud to configure and monitor the security settings and ensure proper integration with your Kubernetes cluster.  
 
 - **Kubeadmin Access to AKS, EKS, or GKE:** Ensure you have Kubernetes admin access to your chosen cloud provider's Kubernetes service (Azure Kubernetes Service, Amazon Elastic Kubernetes Service  
@@ -52,7 +52,7 @@ Before you begin, ensure you have the following:
     1. In the upper-right corner of any page on GitHub, click your profile photo, then click Settings.
     1. In the "Access" section of the sidebar, click  Organizations.
     1. Next to the "Organizations" header, click New organization.
-
+  
 
 ## Step-by-Step Procedure  
 
@@ -171,7 +171,7 @@ Go to home page of you repository and click on the Packages: https://github.com/
 ![Packages of thge repository](docs/repo-packages.png)
 
 Expand the latest version to verify the digest from the previous step:
-![Digest from GHCR](docs/digest-ghcr.png)
+![Digest from GHCR](docs/digest-ghcr.png). 
 
 Connect to your Prisma Cloud tenant and search for code2cloud from Runtime Security > Monitor > Vulnerabilities > Images > Deployed, click on the image that was deployed on your kubernetes cluster and verify the hash from previous step:
 ![Digest from Prisma Cloud](docs/digest-prisma-cloud.png)
