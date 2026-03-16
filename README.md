@@ -34,7 +34,7 @@ The steps to access it are as follows:
 ## Features
 
 - Add, edit, delete, and list customers.
-- Flask-based web application.
+- Flask-based web application.   
 - SQLite database for data storage.
 - CI/CD pipeline using GitHub Actions.
 - Containerized application deployed on Kubernetes.
