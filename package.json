@@ -1,0 +1,8 @@
+{
+  "name": "code2cloud-python-flask-webserver",
+  "version": "1.0.0",
+  "description": "Node.js dependencies for the VM image",
+  "dependencies": {
+    "jsonwebtoken": "8.5.1"
+  }
+}
