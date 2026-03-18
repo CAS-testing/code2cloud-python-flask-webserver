@@ -35,10 +35,16 @@ build {
     destination = "/tmp/main.py"
   }
 
+  provisioner "file" {
+    source      = "package.json"
+    destination = "/tmp/package.json"
+  }
+
   provisioner "shell" {
     inline = [
       "sudo apt-get update",
-      "sudo apt-get install -y python3-pip",
+      "sudo apt-get install -y python3-pip nodejs npm",
+      "cd /tmp && npm install",
       "python3 /tmp/main.py"
     ]
   }
