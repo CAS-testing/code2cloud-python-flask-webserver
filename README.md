@@ -23,7 +23,7 @@ The steps to access it are as follows:
 ![Code2Cloud Investigate](docs/code2cloud-investigate.png)
 
 #### Code2Cloud Impact Graph
-![Code2Cloud Impact Graph](docs/code2cloud-impact-graph.png)
+![Code2Cloud Impact Graph](docs/code2cloud-impact-graph.png)  
 
 ## Goals
 - Demonstrate code-to-cloud traceability using Prisma Cloud.
