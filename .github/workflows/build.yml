@@ -8,19 +8,16 @@ on:
 permissions:
   id-token: write   # This is required for requesting the JWT
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   install:
     runs-on: ubuntu-latest
 
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
       - name: 🐍 Setup Python 3.8
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v2
         with:
           python-version: '3.8'
 
@@ -38,7 +35,8 @@ jobs:
 
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
+
 
       - name: 🔐 Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v5
@@ -90,7 +88,8 @@ jobs:
 
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
+
 
       - name: 🔐 Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v5
