@@ -1,4 +1,4 @@
-    name: CI/CD
+name: CI/CD
 
 on:
   push:
@@ -122,4 +122,3 @@ jobs:
           CONTAINER_NAME=$(kubectl get deployment $DEPLOYMENT_NAME -n default -o jsonpath='{.spec.template.spec.containers[0].name}')
           echo "Updating container $CONTAINER_NAME in $DEPLOYMENT_NAME to use image ${{ vars.IMAGE_REGISTRY }}:$LATEST_SHA"
           kubectl set image deployment/$DEPLOYMENT_NAME $CONTAINER_NAME=${{ vars.IMAGE_REGISTRY }}:$LATEST_SHA -n default
-
