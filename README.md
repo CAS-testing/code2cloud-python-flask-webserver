@@ -19,6 +19,7 @@ The steps to access it are as follows:
 3. Click on the runtime container image.     
 4. 
 5. Click "View C2C Impact Graph" .      
+
   
 #### Code2Cloud Investigate
 ![Code2Cloud Investigate](docs/code2cloud-investigate.png)
