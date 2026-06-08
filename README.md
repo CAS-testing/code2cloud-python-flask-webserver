@@ -39,7 +39,7 @@ The steps to access it are as follows:
 - Flask-based web application.   
 - SQLite database for data storage.
 - CI/CD pipeline using GitHub Actions.
-- Containerized application deployed on Kubernetes.
+- Containerized application deployed on Kubernetes.   
 
 ## Prerequisites
 Before you begin, ensure you have the following:  
