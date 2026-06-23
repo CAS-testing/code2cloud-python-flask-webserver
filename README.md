@@ -169,7 +169,7 @@ Click on latest action and expand the Output image digest step as you can see be
 ![Digest from the logs](docs/digest-logs.png)
 
 Go to home page of you repository and click on the Packages: https://github.com/<your-github-organization>/code2cloud-python-flask-webserver
-![Packages of thge repository](docs/repo-packages.png)
+![Packages of thge repository](docs/repo-packages.png).
 
 Expand the latest version to verify the digest from the previous step: 
 ![Digest from GHCR](docs/digest-ghcr.png). 
