@@ -179,4 +179,4 @@ Connect to your Prisma Cloud tenant and search for code2cloud from Runtime Secur
 ![Digest from Prisma Cloud](docs/digest-prisma-cloud.png)
 
 
-## END
+## END.
