@@ -24,7 +24,7 @@ resource "aws_ecr_repository" "flask_webserver_repo" {
 
 # Defines a private ECR repository for the OWASP Juice Shop application.
 resource "aws_ecr_repository" "juice_shop_repo" {
-  name = "${var.cluster_name}/juice-shop"
+  name = "juice-shop"
 
   image_tag_mutability = "MUTABLE"
 

@@ -10,6 +10,9 @@ permissions:
   id-token: write
   contents: read
 
+env:
+  ECR_REPOSITORY: juice-shop
+
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
@@ -24,25 +27,18 @@ jobs:
           role-to-assume: arn:aws:iam::980573775279:role/github_actions
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: 🧮 Resolve ECR Repository URI
-        run: |
-          JUICE_SHOP_REGISTRY="${IMAGE_REGISTRY%/*}/juice-shop"
-          echo "JUICE_SHOP_REGISTRY=$JUICE_SHOP_REGISTRY" >> $GITHUB_ENV
-          echo "LATEST_SHA=$(git rev-parse HEAD)" >> $GITHUB_ENV
-        env:
-          IMAGE_REGISTRY: ${{ vars.IMAGE_REGISTRY }}
-
       - name: 🔐 Authenticate to AWS ECR
-        run: |
-          aws ecr get-login-password --region ${{ vars.AWS_REGION }} | \
-          docker login --username AWS --password-stdin $JUICE_SHOP_REGISTRY
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: 🏗️ Build Docker Image
+        env:
+          IMAGE: ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}
         run: |
-          docker build -t $JUICE_SHOP_REGISTRY:$LATEST_SHA ./juice-shop
-          docker tag $JUICE_SHOP_REGISTRY:$LATEST_SHA $JUICE_SHOP_REGISTRY:latest
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+          docker build -t $IMAGE:${{ github.sha }} -t $IMAGE:latest ./juice-shop
 
       - name: 🚀 Push Docker Image to AWS ECR
         run: |
-          docker push $JUICE_SHOP_REGISTRY:$LATEST_SHA
-          docker push $JUICE_SHOP_REGISTRY:latest
+          docker push $IMAGE:${{ github.sha }}
+          docker push $IMAGE:latest
