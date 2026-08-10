@@ -22,6 +22,25 @@ resource "aws_ecr_repository" "flask_webserver_repo" {
   }
 }
 
+# Defines a private ECR repository for the OWASP Juice Shop application.
+resource "aws_ecr_repository" "juice_shop_repo" {
+  name = "${var.cluster_name}/juice-shop"
+
+  image_tag_mutability = "MUTABLE"
+
+  encryption_configuration {
+    encryption_type = "AES256"
+  }
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  tags = {
+    "project" = var.cluster_name
+  }
+}
+
 # Defines a second ECR repository, in this case for storing malware analysis container images.
 resource "aws_ecr_repository" "malware_repo" {
   name = "${var.cluster_name}/malware"
