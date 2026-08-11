@@ -34,6 +34,7 @@ resource "aws_ebs_volume" "web_host_storage" {
     }, {
     yor_trace = "c5509daf-10f0-46af-9e03-419892125211"
   })
+  encrypted = true
 }
 
 resource "aws_ebs_snapshot" "example_snapshot" {
