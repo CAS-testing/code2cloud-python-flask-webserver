@@ -1,5 +1,4 @@
- ### Code2Cloud Python Flask Application   
- 
+ ### Code2Cloud Python Flask Application
  
 ## Description   
  
