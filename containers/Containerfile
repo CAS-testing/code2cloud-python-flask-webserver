@@ -1,0 +1,10 @@
+FROM python:3.12-alpine
+WORKDIR /opt/cf
+ENV E2E_CASE=e2e63731-containerfile
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+RUN adduser -D -u 10002 cfuser
+COPY . .
+USER cfuser
+EXPOSE 5003
+CMD ["python", "index.py"]
