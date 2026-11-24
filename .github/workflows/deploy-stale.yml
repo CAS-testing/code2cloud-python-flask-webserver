@@ -1,0 +1,100 @@
+name: Deploy stale image
+
+# Manual only: run from GitHub -> Actions -> "Deploy stale image" -> "Run workflow".
+# Self-contained: the Deployment manifest is embedded below, no other files needed.
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag to deploy (stale tag)'
+        required: true
+        default: '277e3a566b90946aa77d8de06a97cde2cf27ee32'
+      namespace:
+        description: 'Kubernetes namespace to deploy into'
+        required: true
+        default: 'default'
+
+permissions:
+  id-token: write   # Required for OIDC role assumption
+  contents: read
+
+env:
+  DEPLOYMENT: code2cloud-python-flask-webserver-stale-deployment
+  APP_LABEL: code2cloud-python-flask-webserver-stale
+  IMAGE_REPO: 980573775279.dkr.ecr.us-east-1.amazonaws.com/code2cloud-python-flask-webserver
+  IMAGE_TAG: ${{ inputs.image_tag }}
+  NAMESPACE: ${{ inputs.namespace }}
+
+jobs:
+  deploy-stale:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔐 Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: arn:aws:iam::980573775279:role/github_actions
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: 🔄 Update Kubeconfig for EKS
+        run: aws eks update-kubeconfig --name "${{ vars.EKS_NAME }}" --region "${{ vars.AWS_REGION }}"
+
+      - name: 📝 Render Manifest
+        run: |
+          cat > stale-deployment.yaml <<EOF
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: ${DEPLOYMENT}
+            labels:
+              app: ${APP_LABEL}
+              owner: smelotte
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: ${APP_LABEL}
+            template:
+              metadata:
+                labels:
+                  app: ${APP_LABEL}
+                  owner: smelotte
+              spec:
+                containers:
+                  - name: ${APP_LABEL}
+                    image: ${IMAGE_REPO}:${IMAGE_TAG}
+                    ports:
+                      - containerPort: 5000
+                    readinessProbe:
+                      httpGet:
+                        path: /actuator/info
+                        port: 5000
+                      initialDelaySeconds: 30
+                    livenessProbe:
+                      httpGet:
+                        path: /actuator/info
+                        port: 5000
+                      initialDelaySeconds: 60
+                imagePullSecrets:
+                  - name: ghcr-io-creds
+          EOF
+          cat stale-deployment.yaml
+
+      - name: 📁 Ensure Namespace Exists
+        run: kubectl get namespace "$NAMESPACE" >/dev/null 2>&1 || kubectl create namespace "$NAMESPACE"
+
+      - name: 🧪 Server-side Dry Run
+        run: kubectl apply --dry-run=server -n "$NAMESPACE" -f stale-deployment.yaml
+
+      - name: 🚀 Apply Manifest
+        run: kubectl apply -n "$NAMESPACE" -f stale-deployment.yaml
+
+      - name: ⏳ Wait for Rollout
+        run: kubectl rollout status deployment/"$DEPLOYMENT" -n "$NAMESPACE" --timeout=5m
+
+      - name: 🩺 Diagnostics (on failure)
+        if: failure()
+        run: |
+          kubectl get deployment "$DEPLOYMENT" -n "$NAMESPACE" -o wide || true
+          kubectl describe pods -n "$NAMESPACE" -l app="$APP_LABEL" || true
+          kubectl get events -n "$NAMESPACE" --sort-by=.lastTimestamp | tail -n 30 || true
