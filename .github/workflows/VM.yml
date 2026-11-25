@@ -1,14 +1,12 @@
 name: Build and Deploy VM Image
 
-
-env:
-  AMI_NAME: my-vm-image-${{ github.sha }}
+# BCE-63729 E2E round 2 (temporary, reverted after the test): re-tag an existing ECR image so a second pipeline
+# produces the same digest (multi-pipeline DEPLOYED_BY + stale relation drop).
 
 permissions:
   id-token: write   # This is required for requesting the JWT
 
 on:
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
@@ -16,87 +14,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r additionals.txt
-          pip install -r requirements.txt
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install npm packages
-        run: npm install
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: arn:aws:iam::980573775279:role/github_actions
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: VM Image Build && Deploy
+      - name: Authenticate to AWS ECR
         run: |
-           packer fmt . 
-           packer init .
-           packer validate .
-       
-       # 2. Build VM Image (Most likely failure point)
-      - name: Build VM Image and Output
-        id: packer_run
+          aws ecr get-login-password --region ${{ vars.AWS_REGION }} | \
+          docker login --username AWS --password-stdin ${{ vars.IMAGE_REGISTRY }}
+
+      - name: Re-tag existing image
         run: |
-          echo "Starting Packer build. This step waits until the AMI is fully ready."
-          set -o pipefail
-          # Run the build, piping all output to a temporary file
-          packer build -machine-readable . 2>&1 | tee packer_output.txt
-
-          # Read the contents of the temporary file into a GitHub Action output variable
-          # This ensures we capture the full log even if the command fails
-          PACKER_OUTPUT=$(cat packer_output.txt)
-
-          echo "PACKER_OUTPUT<<EOF" >> $GITHUB_OUTPUT
-          echo "$PACKER_OUTPUT" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-          # Extract AMI ID using the same logic, but on the captured output variable
-          # Note: The AMI ID extraction still needs to be in a successful step to work reliably
-          AMI_ID=$(
-          echo "$PACKER_OUTPUT" |
-          awk -F, '$3=="artifact" && $5=="id" {print $6}' |
-          tail -n 1 |
-          sed 's/^[^:]*://'
-          )
-
-          if [ -z "$AMI_ID" ]; then
-            echo "::warning::AMI ID not found in Packer output. The build likely failed."
-          else
-            echo "AMI_ID=$AMI_ID" >> $GITHUB_OUTPUT
-          fi
-
-
-        # 3. Deploy/Use the AMI
-      - name: Check Status and Deploy AMI
-        run: |
-          # Use the full captured output from the previous step for debugging
-          echo "--- Packer Build Log ---"
-          echo "${{ steps.packer_run.outputs.PACKER_OUTPUT }}"
-          echo "--- End Log ---"
-          # Check if the AMI_ID was successfully captured
-          AMI_ID=${{ steps.packer_run.outputs.AMI_ID }}
-          if [ -z "$AMI_ID" ]; then
-            echo "::error::Deployment skipped: AMI ID was not created by Packer. Review the log above for the specific error details (e.g., IAM, SSH, or Provisioner failure)."
-            exit 1
-          fi
-          echo "✅ AMI Creation Complete. AMI ID: $AMI_ID"
-          echo "Starting deployment process for AMI: $AMI_ID"
-          # Example: Simply describe the AMI to confirm success
-          aws ec2 describe-images --image-ids $AMI_ID
+          docker pull ${{ vars.IMAGE_REGISTRY }}@sha256:d1d5f3040aa8fac68326f24786875e934b0f8e7aceb0c7d982a4800e5ae93acd
+          docker tag ${{ vars.IMAGE_REGISTRY }}@sha256:d1d5f3040aa8fac68326f24786875e934b0f8e7aceb0c7d982a4800e5ae93acd ${{ vars.IMAGE_REGISTRY }}:r2-retag-${{ github.sha }}
+          docker push ${{ vars.IMAGE_REGISTRY }}:r2-retag-${{ github.sha }}

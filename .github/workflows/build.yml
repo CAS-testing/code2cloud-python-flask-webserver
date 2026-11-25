@@ -76,6 +76,22 @@ jobs:
           docker push ${{ vars.IMAGE_REGISTRY }}:$LATEST_SHA
           docker push ${{ vars.IMAGE_REGISTRY }}:latest
 
+      - name: 🧪 BCE-63729 r2 T1 build (explicit -f, EXACT_PATH)
+        run: |
+          docker build -f e2e/exact.Dockerfile -t ${{ vars.IMAGE_REGISTRY }}:r2-t1-$LATEST_SHA .
+          docker push ${{ vars.IMAGE_REGISTRY }}:r2-t1-$LATEST_SHA
+
+      - name: 🧪 BCE-63729 r2 T2 build (working-directory, UNIQUE_SUFFIX)
+        working-directory: e2e
+        run: |
+          docker build -f suffix/Dockerfile -t ${{ vars.IMAGE_REGISTRY }}:r2-t2-$LATEST_SHA .
+          docker push ${{ vars.IMAGE_REGISTRY }}:r2-t2-$LATEST_SHA
+
+      - name: 🧪 BCE-63729 r2 D build (Dockerfile to be deleted)
+        run: |
+          docker build -f e2e/delete/Dockerfile -t ${{ vars.IMAGE_REGISTRY }}:r2-d-$LATEST_SHA .
+          docker push ${{ vars.IMAGE_REGISTRY }}:r2-d-$LATEST_SHA
+
       - name: 📤 Set Output for Latest SHA
         id: export-sha
         run: echo "sha=$LATEST_SHA" >> $GITHUB_OUTPUT
@@ -121,3 +137,9 @@ jobs:
           CONTAINER_NAME=$(kubectl get deployment $DEPLOYMENT_NAME -n default -o jsonpath='{.spec.template.spec.containers[0].name}')
           echo "Updating container $CONTAINER_NAME in $DEPLOYMENT_NAME to use image ${{ vars.IMAGE_REGISTRY }}:$LATEST_SHA"
           kubectl set image deployment/$DEPLOYMENT_NAME $CONTAINER_NAME=${{ vars.IMAGE_REGISTRY }}:$LATEST_SHA -n default
+
+      - name: 🧪 BCE-63729 r2 deploy test images
+        run: |
+          for c in t1 t2 d; do
+            kubectl create deployment e2e-r2-$c --image=${{ vars.IMAGE_REGISTRY }}:r2-$c-$LATEST_SHA -n default --dry-run=client -o yaml | kubectl apply -f -
+          done
